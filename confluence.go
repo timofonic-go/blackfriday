@@ -163,8 +163,8 @@ func (options *Confluence) FootnoteItem(out *bytes.Buffer, name, text []byte, fl
 func (options *Confluence) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 }
 
-// TODO
 func (options *Confluence) CodeSpan(out *bytes.Buffer, text []byte) {
+  out.Write(text)
 }
 
 func (options *Confluence) DoubleEmphasis(out *bytes.Buffer, text []byte) {
