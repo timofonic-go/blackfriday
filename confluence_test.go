@@ -70,7 +70,7 @@ func TestConfluence(t *testing.T) {
 		"{code}<div class=\"hoge\">hoge</div>\n{code}\n",
 
 		"> foo",
-		"{quote}foo\n\n{quote}",
+		"{quote}foo\n\n{quote}\n\n",
 
 		"---",
 		"----",

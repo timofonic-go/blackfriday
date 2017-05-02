@@ -48,7 +48,7 @@ func (options *Confluence) TitleBlock(out *bytes.Buffer, text []byte) {
 func (options *Confluence) BlockQuote(out *bytes.Buffer, text []byte) {
 	out.WriteString("{quote}")
 	out.Write(text)
-	out.WriteString("{quote}")
+	out.WriteString("{quote}\n\n")
 }
 
 func (options *Confluence) BlockHtml(out *bytes.Buffer, text []byte) {
