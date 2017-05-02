@@ -66,6 +66,9 @@ func TestConfluence(t *testing.T) {
 		"```go\nfunc foo() bool {\n\treturn true;\n}\n```\n",
 		"{code:language=go}func foo() bool {\n\treturn true;\n}\n{code}\n",
 
+		"```\n<div class=\"hoge\">hoge</div>\n```\n",
+		"{code}<div class=\"hoge\">hoge</div>\n{code}\n",
+
 		"> foo",
 		"{quote}foo\n\n{quote}",
 

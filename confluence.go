@@ -38,7 +38,7 @@ func (options *Confluence) BlockCode(out *bytes.Buffer, text []byte, lang string
 		out.WriteString("}")
 	}
 
-	attrEscape(out, text)
+	out.Write(text)
 	out.WriteString("{code}\n")
 }
 
