@@ -88,6 +88,7 @@ func (options *Confluence) List(out *bytes.Buffer, text func() bool, flags int) 
 		out.Truncate(marker)
 		return
 	}
+  out.WriteString("\n")
 }
 
 func (options *Confluence) ListItem(out *bytes.Buffer, text []byte, flags int) {

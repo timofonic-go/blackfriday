@@ -76,7 +76,7 @@ func TestConfluence(t *testing.T) {
 		"----",
 
 		"* List\n# Header\n* List\n",
-		"* List\n\nh1. Header\n* List\n",
+		"* List\n\nh1. Header\n* List\n\n",
 
 		"* List\n" +
 			" * shallow indent\n" +
@@ -85,10 +85,10 @@ func TestConfluence(t *testing.T) {
 			"    * almost there\n" +
 			"     * third level\n",
 
-		"* List\n* shallow indent\n* part of second list\n* still second\n* almost there\n* third level\n",
+		"* List\n* shallow indent\n* part of second list\n* still second\n* almost there\n* third level\n\n",
 
 		"1. Ting\n\n2. Bong\n3. Goo\n",
-		"# Ting\n# Bong\n# Goo\n",
+		"# Ting\n# Bong\n# Goo\n\n",
 
 		"||heading 1||heading 2||heading 3||\n|cell A1|cell A2|cell A3|\n|cell B1|cell B2|cell B3|",
 		"||heading 1||heading 2||heading 3||\n|cell A1|cell A2|cell A3|\n|cell B1|cell B2|cell B3|\n\n",
