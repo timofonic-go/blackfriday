@@ -183,7 +183,7 @@ implements the following extensions:
 
         Cat
         : Fluffy animal everyone likes
-        
+
         Internet
         : Vector of transmission for pictures of cats
 
@@ -194,7 +194,7 @@ implements the following extensions:
     end of the document. A footnote looks like this:
 
         This is a footnote.[^1]
-        
+
         [^1]: the footnote text.
 
 *   **Autolinking**. Blackfriday can find URLs that have not been
@@ -251,9 +251,9 @@ are a few of note:
     point. In particular, it does not do any inline escaping, so input
     that happens to look like LaTeX code will be passed through without
     modification.
-    
-*   [Md2Vim](https://github.com/FooSoft/md2vim): transforms markdown files into vimdoc format.
 
+*   [Md2Vim](https://github.com/FooSoft/md2vim): transforms markdown files into vimdoc format.
+*   Confluence output: renders output as Confluence.
 
 Todo
 ----
