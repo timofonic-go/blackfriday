@@ -16,6 +16,7 @@ func ConfluenceRenderer(flags int) Renderer {
 func (options *Confluence) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	// parse out the language names/classes
 	count := 0
+	macroType := ""
 	for _, elt := range strings.Fields(lang) {
 		if elt[0] == '.' {
 			elt = elt[1:]
@@ -24,11 +25,16 @@ func (options *Confluence) BlockCode(out *bytes.Buffer, text []byte, lang string
 			continue
 		}
 		if count == 0 {
-			out.WriteString("{code:language=")
+			if elt == "info" || elt == "warning" || elt == "tip" || elt == "note" {
+				out.WriteString("{")
+			} else {
+				out.WriteString("{code:language=")
+			}
 		} else {
 			out.WriteByte(' ')
 		}
 		attrEscape(out, []byte(elt))
+		macroType = elt
 		count++
 	}
 
@@ -39,7 +45,12 @@ func (options *Confluence) BlockCode(out *bytes.Buffer, text []byte, lang string
 	}
 
 	out.Write(text)
-	out.WriteString("{code}\n")
+
+	if macroType == "info" || macroType == "warning" || macroType == "tip" || macroType == "note" {
+		out.WriteString("{" + macroType + "}\n")
+	} else {
+		out.WriteString("{code}\n")
+	}
 }
 
 func (options *Confluence) TitleBlock(out *bytes.Buffer, text []byte) {
