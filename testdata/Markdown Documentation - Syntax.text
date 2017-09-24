@@ -472,8 +472,8 @@ Markdown will generate:
 
     <p>This is a normal paragraph:</p>
 
-    <pre><code>This is a code block.
-    </code></pre>
+    <do-code>This is a code block.
+    </do-code>
 
 One level of indentation -- 4 spaces or 1 tab -- is removed from each
 line of the code block. For example, this:
@@ -488,10 +488,10 @@ will turn into:
 
     <p>Here is an example of AppleScript:</p>
 
-    <pre><code>tell application "Foo"
+    <do-code>tell application "Foo"
         beep
     end tell
-    </code></pre>
+    </do-code>
 
 A code block continues until it reaches a line that is not indented
 (or the end of the article).
@@ -508,10 +508,10 @@ ampersands and angle brackets. For example, this:
 
 will turn into:
 
-    <pre><code>&lt;div class="footer"&gt;
+    <do-code>&lt;div class="footer"&gt;
         &amp;copy; 2004 Foo Corporation
     &lt;/div&gt;
-    </code></pre>
+    </do-code>
 
 Regular Markdown syntax is not processed within code blocks. E.g.,
 asterisks are just literal asterisks within a code block. This means

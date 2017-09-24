@@ -268,7 +268,7 @@ func (options *Html) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 			continue
 		}
 		if count == 0 {
-			out.WriteString("<pre><code class=\"language-")
+			out.WriteString("<do-code lang=\"")
 		} else {
 			out.WriteByte(' ')
 		}
@@ -277,13 +277,13 @@ func (options *Html) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	}
 
 	if count == 0 {
-		out.WriteString("<pre><code>")
+		out.WriteString("<do-code>")
 	} else {
 		out.WriteString("\">")
 	}
 
 	attrEscape(out, text)
-	out.WriteString("</code></pre>\n")
+	out.WriteString("</do-code>\n")
 }
 
 func (options *Html) BlockQuote(out *bytes.Buffer, text []byte) {

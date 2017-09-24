@@ -704,7 +704,7 @@ func TestReferenceLink(t *testing.T) {
 		"",
 
 		"   [ref]: /url/\n[ref2]: /url/\n [ref3]: /url/\n    [4spaces]: /url/\n",
-		"<pre><code>[4spaces]: /url/\n</code></pre>\n",
+		"<do-code>[4spaces]: /url/\n</do-code>\n",
 
 		"[hmm](ref2)\n   [ref]: /url/\n[ref2]: /url/\n [ref3]: /url/\n",
 		"<p><a href=\"ref2\">hmm</a></p>\n",
