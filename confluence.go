@@ -1,15 +1,15 @@
 package blackfriday
 
 import (
-  "bytes"
-  "strings"
+	"bytes"
+	"strings"
 )
 
 type Confluence struct {
 }
 
 func ConfluenceRenderer(flags int) Renderer {
-  return &Confluence{}
+	return &Confluence{}
 }
 
 // FIXME: Expected results are not returned
@@ -66,7 +66,7 @@ func (options *Confluence) BlockHtml(out *bytes.Buffer, text []byte) {
 }
 
 func (options *Confluence) Header(out *bytes.Buffer, text func() bool, level int, id string) {
-  marker := out.Len()
+	marker := out.Len()
 
 	switch level {
 	case 1:
@@ -94,31 +94,31 @@ func (options *Confluence) HRule(out *bytes.Buffer) {
 }
 
 func (options *Confluence) List(out *bytes.Buffer, text func() bool, flags int) {
-  marker := out.Len()
-  if !text() {
+	marker := out.Len()
+	if !text() {
 		out.Truncate(marker)
 		return
 	}
-  out.WriteString("\n")
+	out.WriteString("\n")
 }
 
 func (options *Confluence) ListItem(out *bytes.Buffer, text []byte, flags int) {
-  if flags&LIST_TYPE_ORDERED != 0 {
-    out.WriteString("# ")
-  } else {
-    out.WriteString("* ")
-  }
+	if flags&LIST_TYPE_ORDERED != 0 {
+		out.WriteString("# ")
+	} else {
+		out.WriteString("* ")
+	}
 	out.Write(text)
-  out.WriteString("\n")
+	out.WriteString("\n")
 }
 
 func (options *Confluence) Paragraph(out *bytes.Buffer, text func() bool) {
-  marker := out.Len()
-  if !text() {
+	marker := out.Len()
+	if !text() {
 		out.Truncate(marker)
 		return
 	}
-  out.WriteString("\n\n")
+	out.WriteString("\n\n")
 }
 
 func (options *Confluence) Table(out *bytes.Buffer, header []byte, body []byte, columnData []int) {
@@ -175,7 +175,7 @@ func (options *Confluence) AutoLink(out *bytes.Buffer, link []byte, kind int) {
 }
 
 func (options *Confluence) CodeSpan(out *bytes.Buffer, text []byte) {
-  out.Write(text)
+	out.Write(text)
 }
 
 func (options *Confluence) DoubleEmphasis(out *bytes.Buffer, text []byte) {
@@ -195,9 +195,9 @@ func (options *Confluence) Emphasis(out *bytes.Buffer, text []byte) {
 
 // TODO
 func (options *Confluence) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-  out.WriteString("!")
+	out.WriteString("!")
 	out.Write(link)
-  out.WriteString("!")
+	out.WriteString("!")
 }
 
 func (options *Confluence) LineBreak(out *bytes.Buffer) {

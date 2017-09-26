@@ -24,7 +24,7 @@ func runConfluence(input string) string {
 	extensions |= EXTENSION_TABLES
 	extensions |= EXTENSION_STRIKETHROUGH
 	extensions |= EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
-  return string(Markdown([]byte(input), renderer, extensions))
+	return string(Markdown([]byte(input), renderer, extensions))
 }
 
 func doTestsConfluence(t *testing.T, tests []string) {
