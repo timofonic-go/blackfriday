@@ -1,5 +1,17 @@
-Blackfriday [![Build Status](https://travis-ci.org/russross/blackfriday.svg?branch=master)](https://travis-ci.org/russross/blackfriday)
+Blackfriday
 ===========
+
+## Fork
+
+This fork add MathJax support to blackfriday.v2, And enable it by default. It just work like pandoc, It will render math (inline or block) properly.
+
+```bash
+go get github.com/Vonng/blackfriday
+```
+
+
+
+-----
 
 Blackfriday is a [Markdown][1] processor implemented in [Go][2]. It
 is paranoid about its input (so you can safely feed it user-supplied
@@ -184,11 +196,11 @@ implements the following extensions:
     and supply a language (to make syntax highlighting simple). Just
     mark it like this:
 
-        ```go
+        ​```go
         func getTrue() bool {
             return true
         }
-        ```
+        ​```
 
     You can use 3 or more backticks to mark the beginning of the
     block, and the same number to mark the end of the block.
@@ -209,7 +221,7 @@ implements the following extensions:
     end of the document. A footnote looks like this:
 
         This is a footnote.[^1]
-        
+
         [^1]: the footnote text.
 
 *   **Autolinking**. Blackfriday can find URLs that have not been
@@ -275,9 +287,9 @@ License
 [Blackfriday is distributed under the Simplified BSD License](LICENSE.txt)
 
 
-   [1]: https://daringfireball.net/projects/markdown/ "Markdown"
-   [2]: https://golang.org/ "Go Language"
-   [3]: https://github.com/vmg/sundown "Sundown"
-   [4]: https://godoc.org/gopkg.in/russross/blackfriday.v2#Parse "Parse func"
-   [5]: https://github.com/microcosm-cc/bluemonday "Bluemonday"
-   [6]: https://labix.org/gopkg.in "gopkg.in"
+[1]: https://daringfireball.net/projects/markdown/ "Markdown"
+[2]: https://golang.org/ "Go Language"
+[3]: https://github.com/vmg/sundown "Sundown"
+[4]: https://godoc.org/gopkg.in/russross/blackfriday.v2#Parse "Parse func"
+[5]: https://github.com/microcosm-cc/bluemonday "Bluemonday"
+[6]: https://labix.org/gopkg.in "gopkg.in"
