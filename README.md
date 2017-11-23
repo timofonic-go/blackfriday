@@ -336,7 +336,7 @@ are a few of note:
     highlighting library. bfchroma is only compatible with v2 of Blackfriday and
     provides a drop-in renderer ready to use with Blackfriday, as well as
     options and means for further customization.
-
+*   Confluence output: renders output as Confluence.
 
 TODO
 ----
