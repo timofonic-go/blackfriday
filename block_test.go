@@ -457,7 +457,7 @@ func TestUnderlineHeaders(t *testing.T) {
 		"<h1>Header</h1>\n",
 
 		"    Code\n========\n",
-		"<pre><code>Code\n</code></pre>\n\n<p>========</p>\n",
+		"<do-code>Code\n</do-code>\n\n<p>========</p>\n",
 
 		"Header with *inline*\n=====\n",
 		"<h1>Header with <em>inline</em></h1>\n",
@@ -698,27 +698,27 @@ func TestUnorderedList(t *testing.T) {
 		"<ul>\n<li>List\n    extra indent, same paragraph</li>\n</ul>\n",
 
 		"* List\n\n        code block\n",
-		"<ul>\n<li><p>List</p>\n\n<pre><code>code block\n</code></pre></li>\n</ul>\n",
+		"<ul>\n<li><p>List</p>\n\n<do-code>code block\n</do-code></li>\n</ul>\n",
 
 		"* List\n\n          code block with spaces\n",
-		"<ul>\n<li><p>List</p>\n\n<pre><code>  code block with spaces\n</code></pre></li>\n</ul>\n",
+		"<ul>\n<li><p>List</p>\n\n<do-code>  code block with spaces\n</do-code></li>\n</ul>\n",
 
 		"* List\n\n    * sublist\n\n    normal text\n\n    * another sublist\n",
 		"<ul>\n<li><p>List</p>\n\n<ul>\n<li>sublist</li>\n</ul>\n\n<p>normal text</p>\n\n<ul>\n<li>another sublist</li>\n</ul></li>\n</ul>\n",
 
 		`* Foo
 
-        bar
+		bar
 
-        qux
+		qux
 `,
 		`<ul>
 <li><p>Foo</p>
 
-<pre><code>bar
+<do-code>bar
 
 qux
-</code></pre></li>
+</do-code></li>
 </ul>
 `,
 	}
@@ -731,10 +731,10 @@ func TestFencedCodeBlockWithinList(t *testing.T) {
 		`<ul>
 <li><p>Foo</p>
 
-<pre><code>bar
+<do-code>bar
 
 qux
-</code></pre></li>
+</do-code></li>
 </ul>
 `,
 	}, EXTENSION_FENCED_CODE)
@@ -813,10 +813,10 @@ func TestOrderedList(t *testing.T) {
 		"<ol>\n<li>List\n    extra indent, same paragraph</li>\n</ol>\n",
 
 		"1. List\n\n        code block\n",
-		"<ol>\n<li><p>List</p>\n\n<pre><code>code block\n</code></pre></li>\n</ol>\n",
+		"<ol>\n<li><p>List</p>\n\n<do-code>code block\n</do-code></li>\n</ol>\n",
 
 		"1. List\n\n          code block with spaces\n",
-		"<ol>\n<li><p>List</p>\n\n<pre><code>  code block with spaces\n</code></pre></li>\n</ol>\n",
+		"<ol>\n<li><p>List</p>\n\n<do-code>  code block with spaces\n</do-code></li>\n</ol>\n",
 
 		"1. List\n\n* Spacer Mixed listing\n",
 		"<ol>\n<li>List</li>\n</ol>\n\n<ul>\n<li>Spacer Mixed listing</li>\n</ul>\n",
@@ -841,21 +841,21 @@ func TestOrderedList(t *testing.T) {
 
 		`1. Foo
 
-        bar
+		bar
 
 
 
-        qux
+		qux
 `,
 		`<ol>
 <li><p>Foo</p>
 
-<pre><code>bar
+<do-code>bar
 
 
 
 qux
-</code></pre></li>
+</do-code></li>
 </ol>
 `,
 	}
@@ -1051,25 +1051,25 @@ func TestPreformattedHtmlLax(t *testing.T) {
 func TestFencedCodeBlock(t *testing.T) {
 	var tests = []string{
 		"``` go\nfunc foo() bool {\n\treturn true;\n}\n```\n",
-		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
+		"<do-code lang=\"go\">func foo() bool {\n\treturn true;\n}\n</do-code>\n",
 
 		"``` c\n/* special & char < > \" escaping */\n```\n",
-		"<pre><code class=\"language-c\">/* special &amp; char &lt; &gt; &quot; escaping */\n</code></pre>\n",
+		"<do-code lang=\"c\">/* special &amp; char &lt; &gt; &quot; escaping */\n</do-code>\n",
 
 		"``` c\nno *inline* processing ~~of text~~\n```\n",
-		"<pre><code class=\"language-c\">no *inline* processing ~~of text~~\n</code></pre>\n",
+		"<do-code lang=\"c\">no *inline* processing ~~of text~~\n</do-code>\n",
 
 		"```\nNo language\n```\n",
-		"<pre><code>No language\n</code></pre>\n",
+		"<do-code>No language\n</do-code>\n",
 
 		"``` {ocaml}\nlanguage in braces\n```\n",
-		"<pre><code class=\"language-ocaml\">language in braces\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">language in braces\n</do-code>\n",
 
 		"```    {ocaml}      \nwith extra whitespace\n```\n",
-		"<pre><code class=\"language-ocaml\">with extra whitespace\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">with extra whitespace\n</do-code>\n",
 
 		"```{   ocaml   }\nwith extra whitespace\n```\n",
-		"<pre><code class=\"language-ocaml\">with extra whitespace\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">with extra whitespace\n</do-code>\n",
 
 		"~ ~~ java\nWith whitespace\n~~~\n",
 		"<p>~ ~~ java\nWith whitespace\n~~~</p>\n",
@@ -1078,7 +1078,7 @@ func TestFencedCodeBlock(t *testing.T) {
 		"<p>~~\nonly two\n~~</p>\n",
 
 		"```` python\nextra\n````\n",
-		"<pre><code class=\"language-python\">extra\n</code></pre>\n",
+		"<do-code lang=\"python\">extra\n</do-code>\n",
 
 		"~~~ perl\nthree to start, four to end\n~~~~\n",
 		"<p>~~~ perl\nthree to start, four to end\n~~~~</p>\n",
@@ -1087,7 +1087,7 @@ func TestFencedCodeBlock(t *testing.T) {
 		"<p>~~~~ perl\nfour to start, three to end\n~~~</p>\n",
 
 		"~~~ bash\ntildes\n~~~\n",
-		"<pre><code class=\"language-bash\">tildes\n</code></pre>\n",
+		"<do-code lang=\"bash\">tildes\n</do-code>\n",
 
 		"``` lisp\nno ending\n",
 		"<p>``` lisp\nno ending</p>\n",
@@ -1102,40 +1102,40 @@ func TestFencedCodeBlock(t *testing.T) {
 		"<p>~~~\nmismatched begin and end\n```</p>\n",
 
 		"   ``` oz\nleading spaces\n```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"  ``` oz\nleading spaces\n ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		" ``` oz\nleading spaces\n  ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"``` oz\nleading spaces\n   ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"    ``` oz\nleading spaces\n    ```\n",
-		"<pre><code>``` oz\n</code></pre>\n\n<p>leading spaces\n    ```</p>\n",
+		"<do-code>``` oz\n</do-code>\n\n<p>leading spaces\n    ```</p>\n",
 
 		"Bla bla\n\n``` oz\ncode blocks breakup paragraphs\n```\n\nBla Bla\n",
-		"<p>Bla bla</p>\n\n<pre><code class=\"language-oz\">code blocks breakup paragraphs\n</code></pre>\n\n<p>Bla Bla</p>\n",
+		"<p>Bla bla</p>\n\n<do-code lang=\"oz\">code blocks breakup paragraphs\n</do-code>\n\n<p>Bla Bla</p>\n",
 
 		"Some text before a fenced code block\n``` oz\ncode blocks breakup paragraphs\n```\nAnd some text after a fenced code block",
-		"<p>Some text before a fenced code block</p>\n\n<pre><code class=\"language-oz\">code blocks breakup paragraphs\n</code></pre>\n\n<p>And some text after a fenced code block</p>\n",
+		"<p>Some text before a fenced code block</p>\n\n<do-code lang=\"oz\">code blocks breakup paragraphs\n</do-code>\n\n<p>And some text after a fenced code block</p>\n",
 
 		"`",
 		"<p>`</p>\n",
 
 		"Bla bla\n\n``` oz\ncode blocks breakup paragraphs\n```\n\nBla Bla\n\n``` oz\nmultiple code blocks work okay\n```\n\nBla Bla\n",
-		"<p>Bla bla</p>\n\n<pre><code class=\"language-oz\">code blocks breakup paragraphs\n</code></pre>\n\n<p>Bla Bla</p>\n\n<pre><code class=\"language-oz\">multiple code blocks work okay\n</code></pre>\n\n<p>Bla Bla</p>\n",
+		"<p>Bla bla</p>\n\n<do-code lang=\"oz\">code blocks breakup paragraphs\n</do-code>\n\n<p>Bla Bla</p>\n\n<do-code lang=\"oz\">multiple code blocks work okay\n</do-code>\n\n<p>Bla Bla</p>\n",
 
 		"Some text before a fenced code block\n``` oz\ncode blocks breakup paragraphs\n```\nSome text in between\n``` oz\nmultiple code blocks work okay\n```\nAnd some text after a fenced code block",
-		"<p>Some text before a fenced code block</p>\n\n<pre><code class=\"language-oz\">code blocks breakup paragraphs\n</code></pre>\n\n<p>Some text in between</p>\n\n<pre><code class=\"language-oz\">multiple code blocks work okay\n</code></pre>\n\n<p>And some text after a fenced code block</p>\n",
+		"<p>Some text before a fenced code block</p>\n\n<do-code lang=\"oz\">code blocks breakup paragraphs\n</do-code>\n\n<p>Some text in between</p>\n\n<do-code lang=\"oz\">multiple code blocks work okay\n</do-code>\n\n<p>And some text after a fenced code block</p>\n",
 
 		"```\n[]:()\n```\n",
-		"<pre><code>[]:()\n</code></pre>\n",
+		"<do-code>[]:()\n</do-code>\n",
 
 		"```\n[]:()\n[]:)\n[]:(\n[]:x\n[]:testing\n[:testing\n\n[]:\nlinebreak\n[]()\n\n[]:\n[]()\n```",
-		"<pre><code>[]:()\n[]:)\n[]:(\n[]:x\n[]:testing\n[:testing\n\n[]:\nlinebreak\n[]()\n\n[]:\n[]()\n</code></pre>\n",
+		"<do-code>[]:()\n[]:)\n[]:(\n[]:x\n[]:testing\n[:testing\n\n[]:\nlinebreak\n[]()\n\n[]:\n[]()\n</do-code>\n",
 	}
 	doTestsBlock(t, tests, EXTENSION_FENCED_CODE)
 }
@@ -1149,9 +1149,9 @@ func TestFencedCodeInsideBlockquotes(t *testing.T) {
 			"```",
 			""),
 		`<blockquote>
-<pre><code class="language-go">package moo
+<do-code lang="go">package moo
 
-</code></pre>
+</do-code>
 </blockquote>
 `,
 		// -------------------------------------------
@@ -1166,8 +1166,8 @@ func TestFencedCodeInsideBlockquotes(t *testing.T) {
 		`<blockquote>
 <p>foo</p>
 
-<pre><code class="language-go">package moo
-</code></pre>
+<do-code lang="go">package moo
+</do-code>
 
 <p>goo.</p>
 </blockquote>
@@ -1205,13 +1205,13 @@ continues
 		`<blockquote>
 <p>foo</p>
 
-<pre><code class="language-go">package moo
-</code></pre>
+<do-code lang="go">package moo
+</do-code>
 
 <p>goo.</p>
 
-<pre><code class="language-go">package zoo
-</code></pre>
+<do-code lang="go">package zoo
+</do-code>
 
 <p>woo.</p>
 </blockquote>
@@ -1238,10 +1238,10 @@ continues
 	want := `<blockquote>
 <p>plain quoted text</p>
 
-<pre><code class="language-fenced">code
+<do-code lang="fenced">code
  with leading single space correctly preserved
 okay
-</code></pre>
+</do-code>
 
 <p>rest of quoted text</p>
 </blockquote>
@@ -1399,10 +1399,10 @@ func TestUnorderedListWith_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"<ul>\n<li>List\n    extra indent, same paragraph</li>\n</ul>\n",
 
 		"* List\n\n        code block\n",
-		"<ul>\n<li><p>List</p>\n\n<pre><code>code block\n</code></pre></li>\n</ul>\n",
+		"<ul>\n<li><p>List</p>\n\n<do-code>code block\n</do-code></li>\n</ul>\n",
 
 		"* List\n\n          code block with spaces\n",
-		"<ul>\n<li><p>List</p>\n\n<pre><code>  code block with spaces\n</code></pre></li>\n</ul>\n",
+		"<ul>\n<li><p>List</p>\n\n<do-code>  code block with spaces\n</do-code></li>\n</ul>\n",
 
 		"* List\n\n    * sublist\n\n    normal text\n\n    * another sublist\n",
 		"<ul>\n<li><p>List</p>\n\n<ul>\n<li>sublist</li>\n</ul>\n\n<p>normal text</p>\n\n<ul>\n<li>another sublist</li>\n</ul></li>\n</ul>\n",
@@ -1483,10 +1483,10 @@ func TestOrderedList_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"<ol>\n<li>List\n    extra indent, same paragraph</li>\n</ol>\n",
 
 		"1. List\n\n        code block\n",
-		"<ol>\n<li><p>List</p>\n\n<pre><code>code block\n</code></pre></li>\n</ol>\n",
+		"<ol>\n<li><p>List</p>\n\n<do-code>code block\n</do-code></li>\n</ol>\n",
 
 		"1. List\n\n          code block with spaces\n",
-		"<ol>\n<li><p>List</p>\n\n<pre><code>  code block with spaces\n</code></pre></li>\n</ol>\n",
+		"<ol>\n<li><p>List</p>\n\n<do-code>  code block with spaces\n</do-code></li>\n</ol>\n",
 
 		"1. List\n    * Mixted list\n",
 		"<ol>\n<li>List\n\n<ul>\n<li>Mixted list</li>\n</ul></li>\n</ol>\n",
@@ -1509,25 +1509,25 @@ func TestOrderedList_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 	var tests = []string{
 		"``` go\nfunc foo() bool {\n\treturn true;\n}\n```\n",
-		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
+		"<do-code lang=\"go\">func foo() bool {\n\treturn true;\n}\n</do-code>\n",
 
 		"``` c\n/* special & char < > \" escaping */\n```\n",
-		"<pre><code class=\"language-c\">/* special &amp; char &lt; &gt; &quot; escaping */\n</code></pre>\n",
+		"<do-code lang=\"c\">/* special &amp; char &lt; &gt; &quot; escaping */\n</do-code>\n",
 
 		"``` c\nno *inline* processing ~~of text~~\n```\n",
-		"<pre><code class=\"language-c\">no *inline* processing ~~of text~~\n</code></pre>\n",
+		"<do-code lang=\"c\">no *inline* processing ~~of text~~\n</do-code>\n",
 
 		"```\nNo language\n```\n",
-		"<pre><code>No language\n</code></pre>\n",
+		"<do-code>No language\n</do-code>\n",
 
 		"``` {ocaml}\nlanguage in braces\n```\n",
-		"<pre><code class=\"language-ocaml\">language in braces\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">language in braces\n</do-code>\n",
 
 		"```    {ocaml}      \nwith extra whitespace\n```\n",
-		"<pre><code class=\"language-ocaml\">with extra whitespace\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">with extra whitespace\n</do-code>\n",
 
 		"```{   ocaml   }\nwith extra whitespace\n```\n",
-		"<pre><code class=\"language-ocaml\">with extra whitespace\n</code></pre>\n",
+		"<do-code lang=\"ocaml\">with extra whitespace\n</do-code>\n",
 
 		"~ ~~ java\nWith whitespace\n~~~\n",
 		"<p>~ ~~ java\nWith whitespace\n~~~</p>\n",
@@ -1536,7 +1536,7 @@ func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"<p>~~\nonly two\n~~</p>\n",
 
 		"```` python\nextra\n````\n",
-		"<pre><code class=\"language-python\">extra\n</code></pre>\n",
+		"<do-code lang=\"python\">extra\n</do-code>\n",
 
 		"~~~ perl\nthree to start, four to end\n~~~~\n",
 		"<p>~~~ perl\nthree to start, four to end\n~~~~</p>\n",
@@ -1545,7 +1545,7 @@ func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"<p>~~~~ perl\nfour to start, three to end\n~~~</p>\n",
 
 		"~~~ bash\ntildes\n~~~\n",
-		"<pre><code class=\"language-bash\">tildes\n</code></pre>\n",
+		"<do-code lang=\"bash\">tildes\n</do-code>\n",
 
 		"``` lisp\nno ending\n",
 		"<p>``` lisp\nno ending</p>\n",
@@ -1560,19 +1560,19 @@ func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"<p>~~~\nmismatched begin and end\n```</p>\n",
 
 		"   ``` oz\nleading spaces\n```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"  ``` oz\nleading spaces\n ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		" ``` oz\nleading spaces\n  ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"``` oz\nleading spaces\n   ```\n",
-		"<pre><code class=\"language-oz\">leading spaces\n</code></pre>\n",
+		"<do-code lang=\"oz\">leading spaces\n</do-code>\n",
 
 		"    ``` oz\nleading spaces\n    ```\n",
-		"<pre><code>``` oz\n</code></pre>\n\n<p>leading spaces</p>\n\n<pre><code>```\n</code></pre>\n",
+		"<do-code>``` oz\n</do-code>\n\n<p>leading spaces</p>\n\n<do-code>```\n</do-code>\n",
 	}
 	doTestsBlock(t, tests, EXTENSION_FENCED_CODE|EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK)
 }
@@ -1625,7 +1625,7 @@ func TestCDATA(t *testing.T) {
 	doTestsBlock(t, tests, 0)
 	doTestsBlock(t, []string{
 		"``` html\n<![CDATA[foo]]>\n```\n",
-		"<pre><code class=\"language-html\">&lt;![CDATA[foo]]&gt;\n</code></pre>\n",
+		"<do-code lang=\"html\">&lt;![CDATA[foo]]&gt;\n</do-code>\n",
 
 		"<![CDATA[\n``` python\ndef func():\n    pass\n```\n]]>\n",
 		"<![CDATA[\n``` python\ndef func():\n    pass\n```\n]]>\n",
