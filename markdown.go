@@ -47,6 +47,7 @@ const (
 	AutoHeadingIDs                                // Create the heading ID from the text
 	BackslashLineBreak                            // Translate trailing backslashes into line breaks
 	DefinitionLists                               // Render definition lists
+        EmptyLink                                     // Parse empty links
 	MathJaxSupport                                // Render with MathJax compatible
 
 	CommonHTMLFlags HTMLFlags = UseXHTML | Smartypants |
@@ -54,7 +55,7 @@ const (
 
 	CommonExtensions Extensions = NoIntraEmphasis | Tables | FencedCode |
 		Autolink | Strikethrough | SpaceHeadings | HeadingIDs |
-		BackslashLineBreak | DefinitionLists | NoEmptyLineBeforeBlock | MathJaxSupport
+		BackslashLineBreak | DefinitionLists | EmptyLink | NoEmptyLineBeforeBlock | MathJaxSupport
 )
 
 // ListType contains bitwise or'ed flags for list and list item objects.
@@ -64,12 +65,12 @@ type ListType int
 // Multiple flag values may be ORed together.
 // These are mostly of interest if you are writing a new output format.
 const (
-	ListTypeOrdered    ListType = 1 << iota
+	ListTypeOrdered ListType = 1 << iota
 	ListTypeDefinition
 	ListTypeTerm
 
 	ListItemContainsBlock
-	ListItemBeginningOfList  // TODO: figure out if this is of any use now
+	ListItemBeginningOfList // TODO: figure out if this is of any use now
 	ListItemEndOfList
 )
 
@@ -80,7 +81,7 @@ type CellAlignFlags int
 // Only a single one of these values will be used; they are not ORed together.
 // These are mostly of interest if you are writing a new output format.
 const (
-	TableAlignmentLeft   CellAlignFlags = 1 << iota
+	TableAlignmentLeft CellAlignFlags = 1 << iota
 	TableAlignmentRight
 	TableAlignmentCenter = (TableAlignmentLeft | TableAlignmentRight)
 )
@@ -783,7 +784,7 @@ gatherLines:
 		}
 
 		// get rid of that first tab, write to buffer
-		raw.Write(data[blockEnd+n: i])
+		raw.Write(data[blockEnd+n : i])
 		hasBlock = true
 
 		blockEnd = i
@@ -940,5 +941,5 @@ func slugify(in []byte) []byte {
 			break
 		}
 	}
-	return out[a: b+1]
+	return out[a : b+1]
 }
