@@ -1458,6 +1458,17 @@ func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 	doTestsBlock(t, tests, FencedCode|NoEmptyLineBeforeBlock)
 }
 
+func TestListWithFencedCodeBlock(t *testing.T) {
+	var tests = []string{
+		"1. one\n\n    ```\n    code\n    ```\n\n2. two\n",
+		"<ol>\n<li><p>one</p>\n\n<pre><code>code\n</code></pre></li>\n\n<li><p>two</p></li>\n</ol>\n",
+		// https://github.com/russross/blackfriday/issues/239
+		"1. one\n\n    ```\n    - code\n    ```\n\n2. two\n",
+		"<ol>\n<li><p>one</p>\n\n<pre><code>- code\n</code></pre></li>\n\n<li><p>two</p></li>\n</ol>\n",
+	}
+	doTestsBlock(t, tests, FencedCode)
+}
+
 func TestMathBlock(t *testing.T) {
 	var tests = []string{
 		"$y=a+b$$",
@@ -1613,6 +1624,36 @@ func TestTOC(t *testing.T) {
 	}
 	doTestsParam(t, tests, TestParams{
 		HTMLFlags: UseXHTML | TOC,
+	})
+}
+
+func TestOmitContents(t *testing.T) {
+	var tests = []string{
+		"# Title\n\n##Subtitle\n\n#Title2",
+		`<nav>
+
+<ul>
+<li><a href="#toc_0">Title</a>
+<ul>
+<li><a href="#toc_1">Subtitle</a></li>
+</ul></li>
+
+<li><a href="#toc_2">Title2</a></li>
+</ul>
+
+</nav>
+`,
+
+		// Make sure OmitContents omits even with no TOC
+		"#\n\nfoo",
+		"",
+	}
+	doTestsParam(t, tests, TestParams{
+		HTMLFlags: UseXHTML | TOC | OmitContents,
+	})
+	// Now run again: make sure OmitContents implies TOC
+	doTestsParam(t, tests, TestParams{
+		HTMLFlags: UseXHTML | OmitContents,
 	})
 }
 
