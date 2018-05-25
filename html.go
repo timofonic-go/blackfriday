@@ -44,29 +44,31 @@ const (
 	SmartypantsDashes                             // Enable smart dashes (with Smartypants)
 	SmartypantsLatexDashes                        // Enable LaTeX-style dashes (with Smartypants)
 	SmartypantsAngledQuotes                       // Enable angled double quotes (with Smartypants) for double quotes rendering
+	SmartypantsQuotesNBSP                         // Enable « French guillemets » (with Smartypants)
 	TOC                                           // Generate a table of contents
-	OmitContents                                  // Skip the main contents (for a standalone table of contents)
-
-	TagName               = "[A-Za-z][A-Za-z0-9-]*"
-	AttributeName         = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
-	UnquotedValue         = "[^\"'=<>`\\x00-\\x20]+"
-	SingleQuotedValue     = "'[^']*'"
-	DoubleQuotedValue     = "\"[^\"]*\""
-	AttributeValue        = "(?:" + UnquotedValue + "|" + SingleQuotedValue + "|" + DoubleQuotedValue + ")"
-	AttributeValueSpec    = "(?:" + "\\s*=" + "\\s*" + AttributeValue + ")"
-	Attribute             = "(?:" + "\\s+" + AttributeName + AttributeValueSpec + "?)"
-	OpenTag               = "<" + TagName + Attribute + "*" + "\\s*/?>"
-	CloseTag              = "</" + TagName + "\\s*[>]"
-	HTMLComment           = "<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->"
-	ProcessingInstruction = "[<][?].*?[?][>]"
-	Declaration           = "<![A-Z]+" + "\\s+[^>]*>"
-	CDATA                 = "<!\\[CDATA\\[[\\s\\S]*?\\]\\]>"
-	HTMLTag               = "(?:" + OpenTag + "|" + CloseTag + "|" + HTMLComment + "|" +
-		ProcessingInstruction + "|" + Declaration + "|" + CDATA + ")"
 )
 
 var (
-	htmlTagRe = regexp.MustCompile("(?i)^" + HTMLTag)
+	htmlTagRe = regexp.MustCompile("(?i)^" + htmlTag)
+)
+
+const (
+	htmlTag = "(?:" + openTag + "|" + closeTag + "|" + htmlComment + "|" +
+		processingInstruction + "|" + declaration + "|" + cdata + ")"
+	closeTag              = "</" + tagName + "\\s*[>]"
+	openTag               = "<" + tagName + attribute + "*" + "\\s*/?>"
+	attribute             = "(?:" + "\\s+" + attributeName + attributeValueSpec + "?)"
+	attributeValue        = "(?:" + unquotedValue + "|" + singleQuotedValue + "|" + doubleQuotedValue + ")"
+	attributeValueSpec    = "(?:" + "\\s*=" + "\\s*" + attributeValue + ")"
+	attributeName         = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
+	cdata                 = "<!\\[CDATA\\[[\\s\\S]*?\\]\\]>"
+	declaration           = "<![A-Z]+" + "\\s+[^>]*>"
+	doubleQuotedValue     = "\"[^\"]*\""
+	htmlComment           = "<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->"
+	processingInstruction = "[<][?].*?[?][>]"
+	singleQuotedValue     = "'[^']*'"
+	tagName               = "[A-Za-z][A-Za-z0-9-]*"
+	unquotedValue         = "[^\"'=<>`\\x00-\\x20]+"
 )
 
 // HTMLRendererParameters is a collection of supplementary parameters tweaking
@@ -85,6 +87,10 @@ type HTMLRendererParameters struct {
 	HeadingIDPrefix string
 	// If set, add this text to the back of each Heading ID, to ensure uniqueness.
 	HeadingIDSuffix string
+	// Increase heading levels: if the offset is 1, <h1> becomes <h2> etc.
+	// Negative offset is also valid.
+	// Resulting levels are clipped between 1 and 6.
+	HeadingLevelOffset int
 
 	Title string // Document title (used if CompletePage is set)
 	CSS   string // Optional CSS file URL (used if CompletePage is set)
@@ -329,7 +335,7 @@ func (r *HTMLRenderer) tag(w io.Writer, name []byte, attrs []string) {
 
 func footnoteRef(prefix string, node *Node) []byte {
 	urlFrag := prefix + string(slugify(node.Destination))
-	anchor := fmt.Sprintf(`<a rel="footnote" href="#fn:%s">%d</a>`, urlFrag, node.NoteID)
+	anchor := fmt.Sprintf(`<a href="#fn:%s">%d</a>`, urlFrag, node.NoteID)
 	return []byte(fmt.Sprintf(`<sup class="footnote-ref" id="fnref:%s">%s</sup>`, urlFrag, anchor))
 }
 
@@ -458,9 +464,10 @@ var (
 )
 
 func headingTagsFromLevel(level int) ([]byte, []byte) {
-	switch level {
-	case 1:
+	if level <= 1 {
 		return h1Tag, h1CloseTag
+	}
+	switch level {
 	case 2:
 		return h2Tag, h2CloseTag
 	case 3:
@@ -469,9 +476,8 @@ func headingTagsFromLevel(level int) ([]byte, []byte) {
 		return h4Tag, h4CloseTag
 	case 5:
 		return h5Tag, h5CloseTag
-	default:
-		return h6Tag, h6CloseTag
 	}
+	return h6Tag, h6CloseTag
 }
 
 func (r *HTMLRenderer) outHRTag(w io.Writer) {
@@ -649,7 +655,8 @@ func (r *HTMLRenderer) RenderNode(w io.Writer, node *Node, entering bool) WalkSt
 		r.out(w, node.Literal)
 		r.cr(w)
 	case Heading:
-		openTag, closeTag := headingTagsFromLevel(node.Level)
+		headingLevel := r.HTMLRendererParameters.HeadingLevelOffset + node.Level
+		openTag, closeTag := headingTagsFromLevel(headingLevel)
 		if entering {
 			if node.IsTitleblock {
 				attrs = append(attrs, `class="title"`)
@@ -819,55 +826,71 @@ func (r *HTMLRenderer) RenderNode(w io.Writer, node *Node, entering bool) WalkSt
 	return GoToNext
 }
 
-func (r *HTMLRenderer) writeDocumentHeader(w *bytes.Buffer) {
+// RenderHeader writes HTML document preamble and TOC if requested.
+func (r *HTMLRenderer) RenderHeader(w io.Writer, ast *Node) {
+	r.writeDocumentHeader(w)
+	if r.Flags&TOC != 0 {
+		r.writeTOC(w, ast)
+	}
+}
+
+// RenderFooter writes HTML document footer.
+func (r *HTMLRenderer) RenderFooter(w io.Writer, ast *Node) {
+	if r.Flags&CompletePage == 0 {
+		return
+	}
+	io.WriteString(w, "\n</body>\n</html>\n")
+}
+
+func (r *HTMLRenderer) writeDocumentHeader(w io.Writer) {
 	if r.Flags&CompletePage == 0 {
 		return
 	}
 	ending := ""
 	if r.Flags&UseXHTML != 0 {
-		w.WriteString("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" ")
-		w.WriteString("\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n")
-		w.WriteString("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n")
+		io.WriteString(w, "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" ")
+		io.WriteString(w, "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n")
+		io.WriteString(w, "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n")
 		ending = " /"
 	} else {
-		w.WriteString("<!DOCTYPE html>\n")
-		w.WriteString("<html>\n")
+		io.WriteString(w, "<!DOCTYPE html>\n")
+		io.WriteString(w, "<html>\n")
 	}
-	w.WriteString("<head>\n")
-	w.WriteString("  <title>")
+	io.WriteString(w, "<head>\n")
+	io.WriteString(w, "  <title>")
 	if r.Flags&Smartypants != 0 {
 		r.sr.Process(w, []byte(r.Title))
 	} else {
 		escapeHTML(w, []byte(r.Title))
 	}
-	w.WriteString("</title>\n")
-	w.WriteString("  <meta name=\"GENERATOR\" content=\"Blackfriday Markdown Processor v")
-	w.WriteString(Version)
-	w.WriteString("\"")
-	w.WriteString(ending)
-	w.WriteString(">\n")
-	w.WriteString("  <meta charset=\"utf-8\"")
-	w.WriteString(ending)
-	w.WriteString(">\n")
+	io.WriteString(w, "</title>\n")
+	io.WriteString(w, "  <meta name=\"GENERATOR\" content=\"Blackfriday Markdown Processor v")
+	io.WriteString(w, Version)
+	io.WriteString(w, "\"")
+	io.WriteString(w, ending)
+	io.WriteString(w, ">\n")
+	io.WriteString(w, "  <meta charset=\"utf-8\"")
+	io.WriteString(w, ending)
+	io.WriteString(w, ">\n")
 	if r.CSS != "" {
-		w.WriteString("  <link rel=\"stylesheet\" type=\"text/css\" href=\"")
+		io.WriteString(w, "  <link rel=\"stylesheet\" type=\"text/css\" href=\"")
 		escapeHTML(w, []byte(r.CSS))
-		w.WriteString("\"")
-		w.WriteString(ending)
-		w.WriteString(">\n")
+		io.WriteString(w, "\"")
+		io.WriteString(w, ending)
+		io.WriteString(w, ">\n")
 	}
 	if r.Icon != "" {
-		w.WriteString("  <link rel=\"icon\" type=\"image/x-icon\" href=\"")
+		io.WriteString(w, "  <link rel=\"icon\" type=\"image/x-icon\" href=\"")
 		escapeHTML(w, []byte(r.Icon))
-		w.WriteString("\"")
-		w.WriteString(ending)
-		w.WriteString(">\n")
+		io.WriteString(w, "\"")
+		io.WriteString(w, ending)
+		io.WriteString(w, ">\n")
 	}
-	w.WriteString("</head>\n")
-	w.WriteString("<body>\n\n")
+	io.WriteString(w, "</head>\n")
+	io.WriteString(w, "<body>\n\n")
 }
 
-func (r *HTMLRenderer) writeTOC(w *bytes.Buffer, ast *Node) {
+func (r *HTMLRenderer) writeTOC(w io.Writer, ast *Node) {
 	buf := bytes.Buffer{}
 
 	inHeading := false
@@ -914,35 +937,9 @@ func (r *HTMLRenderer) writeTOC(w *bytes.Buffer, ast *Node) {
 	}
 
 	if buf.Len() > 0 {
-		w.WriteString("<nav>\n")
+		io.WriteString(w, "<nav>\n")
 		w.Write(buf.Bytes())
-		w.WriteString("\n\n</nav>\n")
+		io.WriteString(w, "\n\n</nav>\n")
 	}
 	r.lastOutputLen = buf.Len()
-}
-
-func (r *HTMLRenderer) writeDocumentFooter(w *bytes.Buffer) {
-	if r.Flags&CompletePage == 0 {
-		return
-	}
-	w.WriteString("\n</body>\n</html>\n")
-}
-
-// Render walks the specified syntax (sub)tree and returns a HTML document.
-func (r *HTMLRenderer) Render(ast *Node) []byte {
-	//println("render_Blackfriday")
-	//dump(ast)
-	var buf bytes.Buffer
-	r.writeDocumentHeader(&buf)
-	if r.Flags&TOC != 0 || r.Flags&OmitContents != 0 {
-		r.writeTOC(&buf, ast)
-		if r.Flags&OmitContents != 0 {
-			return buf.Bytes()
-		}
-	}
-	ast.Walk(func(node *Node, entering bool) WalkStatus {
-		return r.RenderNode(&buf, node, entering)
-	})
-	r.writeDocumentFooter(&buf)
-	return buf.Bytes()
 }

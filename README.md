@@ -34,9 +34,15 @@ Versions
 --------
 
 Currently maintained and recommended version of Blackfriday is `v2`. It's being
-developed on its own branch: https://github.com/russross/blackfriday/v2. You
-should install and import it via [gopkg.in][6] at
-`gopkg.in/russross/blackfriday.v2`.
+developed on its own branch: https://github.com/russross/blackfriday/tree/v2 and the
+documentation is available at
+https://godoc.org/gopkg.in/russross/blackfriday.v2.
+
+It is `go get`-able via via [gopkg.in][6] at `gopkg.in/russross/blackfriday.v2`,
+but we highly recommend using package management tool like [dep][7] or
+[Glide][8] and make use of semantic versioning. With package management you
+should import `github.com/russross/blackfriday` and specify that you're using
+version 2.0.0.
 
 Version 2 offers a number of improvements over v1:
 
@@ -52,20 +58,27 @@ Potential drawbacks:
   ballpark of around 15%.
 * API breakage. If you can't afford modifying your code to adhere to the new API
   and don't care too much about the new features, v2 is probably not for you.
-
+* Several bug fixes are trailing behind and still need to be forward-ported to
+  v2. See issue [#348](https://github.com/russross/blackfriday/issues/348) for
+  tracking.
 
 Usage
 -----
 
-For basic usage, it is as simple as getting your input into a byte
-slice and calling:
+For the most sensible markdown processing, it is as simple as getting your input
+into a byte slice and calling:
 
-    output := blackfriday.MarkdownBasic(input)
+```go
+output := blackfriday.Run(input)
+```
 
-This renders it with no extensions enabled. To get a more useful
-feature set, use this instead:
+Your input will be parsed and the output rendered with a set of most popular
+extensions enabled. If you want the most basic feature set, corresponding with
+the bare Markdown specification, use:
 
-    output := blackfriday.MarkdownCommon(input)
+```go
+output := blackfriday.Run(input, blackfriday.WithNoExtensions())
+```
 
 ### Sanitize untrusted content
 
@@ -75,24 +88,21 @@ through HTML sanitizer such as [Bluemonday][5].
 
 Here's an example of simple usage of Blackfriday together with Bluemonday:
 
-``` go
+```go
 import (
     "github.com/microcosm-cc/bluemonday"
     "github.com/russross/blackfriday"
 )
 
 // ...
-unsafe := blackfriday.MarkdownCommon(input)
+unsafe := blackfriday.Run(input)
 html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
 ```
 
 ### Custom options
 
-If you want to customize the set of options, first get a renderer
-(currently only the HTML output engine), then use it to
-call the more general `Markdown` function. For examples, see the
-implementations of `MarkdownBasic` and `MarkdownCommon` in
-`markdown.go`.
+If you want to customize the set of options, use `blackfriday.WithExtensions`,
+`blackfriday.WithRenderer` and `blackfriday.WithRefOverride`.
 
 You can also check out `blackfriday-tool` for a more complete example
 of how to use it. Download and install it using:
@@ -134,7 +144,7 @@ All features of Sundown are supported, including:
     know and send me the input that does it.
 
     NOTE: "safety" in this context means *runtime safety only*. In order to
-    protect yourself agains JavaScript injection in untrusted content, see
+    protect yourself against JavaScript injection in untrusted content, see
     [this example](https://github.com/russross/blackfriday#sanitize-untrusted-content).
 
 *   **Fast processing**. It is fast enough to render on-demand in
@@ -180,7 +190,7 @@ implements the following extensions:
     and supply a language (to make syntax highlighting simple). Just
     mark it like this:
 
-        ``` go
+        ```go
         func getTrue() bool {
             return true
         }
@@ -194,7 +204,7 @@ implements the following extensions:
 
         Cat
         : Fluffy animal everyone likes
-        
+
         Internet
         : Vector of transmission for pictures of cats
 
@@ -205,7 +215,7 @@ implements the following extensions:
     end of the document. A footnote looks like this:
 
         This is a footnote.[^1]
-        
+
         [^1]: the footnote text.
 
 *   **Autolinking**. Blackfriday can find URLs that have not been
@@ -214,10 +224,8 @@ implements the following extensions:
 *   **Strikethrough**. Use two tildes (`~~`) to mark text that
     should be crossed out.
 
-*   **Hard line breaks**. With this extension enabled (it is off by
-    default in the `MarkdownBasic` and `MarkdownCommon` convenience
-    functions), newlines in the input translate into line breaks in
-    the output.
+*   **Hard line breaks**. With this extension enabled newlines in the input
+    translate into line breaks in the output. This extension is off by default.
 
 *   **Smart quotes**. Smartypants-style punctuation substitution is
     supported, turning normal double- and single-quote marks into
@@ -253,8 +261,10 @@ are a few of note:
 *   [markdownfmt](https://github.com/shurcooL/markdownfmt): like gofmt,
     but for markdown.
 
-*   [LaTeX output](https://bitbucket.org/ambrevar/blackfriday-latex):
+*   [LaTeX output](https://github.com/Ambrevar/Blackfriday-LaTeX):
     renders output as LaTeX.
+
+*   [Blackfriday-Confluence](https://github.com/kentaro-m/blackfriday-confluence): provides a [Confluence Wiki Markup](https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html) renderer.
 
 
 Todo

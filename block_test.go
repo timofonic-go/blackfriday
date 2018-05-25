@@ -371,6 +371,92 @@ func TestPrefixAutoHeaderIdExtensionWithPrefixAndSuffix(t *testing.T) {
 	})
 }
 
+func TestPrefixHeaderLevelOffset(t *testing.T) {
+	var offsetTests = []struct {
+		offset int
+		tests  []string
+	}{{
+		offset: 0,
+		tests: []string{
+			"# Header 1\n",
+			"<h1>Header 1</h1>\n",
+
+			"## Header 2\n",
+			"<h2>Header 2</h2>\n",
+
+			"### Header 3\n",
+			"<h3>Header 3</h3>\n",
+
+			"#### Header 4\n",
+			"<h4>Header 4</h4>\n",
+
+			"##### Header 5\n",
+			"<h5>Header 5</h5>\n",
+
+			"###### Header 6\n",
+			"<h6>Header 6</h6>\n",
+
+			"####### Header 7\n",
+			"<h6># Header 7</h6>\n",
+		},
+	}, {
+		offset: 1,
+		tests: []string{
+			"# Header 1\n",
+			"<h2>Header 1</h2>\n",
+
+			"## Header 2\n",
+			"<h3>Header 2</h3>\n",
+
+			"### Header 3\n",
+			"<h4>Header 3</h4>\n",
+
+			"#### Header 4\n",
+			"<h5>Header 4</h5>\n",
+
+			"##### Header 5\n",
+			"<h6>Header 5</h6>\n",
+
+			"###### Header 6\n",
+			"<h6>Header 6</h6>\n",
+
+			"####### Header 7\n",
+			"<h6># Header 7</h6>\n",
+		},
+	}, {
+		offset: -1,
+		tests: []string{
+			"# Header 1\n",
+			"<h1>Header 1</h1>\n",
+
+			"## Header 2\n",
+			"<h1>Header 2</h1>\n",
+
+			"### Header 3\n",
+			"<h2>Header 3</h2>\n",
+
+			"#### Header 4\n",
+			"<h3>Header 4</h3>\n",
+
+			"##### Header 5\n",
+			"<h4>Header 5</h4>\n",
+
+			"###### Header 6\n",
+			"<h5>Header 6</h5>\n",
+
+			"####### Header 7\n",
+			"<h5># Header 7</h5>\n",
+		},
+	}}
+	for _, offsetTest := range offsetTests {
+		offset := offsetTest.offset
+		tests := offsetTest.tests
+		doTestsParam(t, tests, TestParams{
+			HTMLRendererParameters: HTMLRendererParameters{HeadingLevelOffset: offset},
+		})
+	}
+}
+
 func TestPrefixMultipleHeaderExtensions(t *testing.T) {
 	var tests = []string{
 		"# Header\n\n# Header {#header}\n\n# Header 1",
@@ -853,6 +939,17 @@ func TestDefinitionList(t *testing.T) {
 	doTestsBlock(t, tests, DefinitionLists)
 }
 
+func TestConsecutiveLists(t *testing.T) {
+	var tests = []string{
+		"1. Hello\n\n* Hello\n\nTerm 1\n:   Definition a\n",
+		"<ol>\n<li>Hello</li>\n</ol>\n\n<ul>\n<li>Hello</li>\n</ul>\n\n<dl>\n<dt>Term 1</dt>\n<dd>Definition a</dd>\n</dl>\n",
+
+		"1. Not nested\n2. ordered list\n\n\t1. nested\n\t2. ordered list\n\n\t* nested\n\t* unordered list\n* Not nested\n* unordered list",
+		"<ol>\n<li><p>Not nested</p></li>\n\n<li><p>ordered list</p>\n\n<ol>\n<li>nested</li>\n<li>ordered list</li>\n</ol>\n\n<ul>\n<li>nested</li>\n<li>unordered list</li>\n</ul></li>\n</ol>\n\n<ul>\n<li>Not nested</li>\n<li>unordered list</li>\n</ul>\n",
+	}
+	doTestsBlock(t, tests, DefinitionLists)
+}
+
 func TestPreformattedHtml(t *testing.T) {
 	var tests = []string{
 		"<div></div>\n",
@@ -932,6 +1029,9 @@ func TestPreformattedHtmlLax(t *testing.T) {
 func TestFencedCodeBlock(t *testing.T) {
 	var tests = []string{
 		"``` go\nfunc foo() bool {\n\treturn true;\n}\n```\n",
+		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
+
+		"``` go foo bar\nfunc foo() bool {\n\treturn true;\n}\n```\n",
 		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
 
 		"``` c\n/* special & char < > \" escaping */\n```\n",
@@ -1392,6 +1492,9 @@ func TestFencedCodeBlock_EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK(t *testing.T) {
 		"``` go\nfunc foo() bool {\n\treturn true;\n}\n```\n",
 		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
 
+		"``` go foo bar\nfunc foo() bool {\n\treturn true;\n}\n```\n",
+		"<pre><code class=\"language-go\">func foo() bool {\n\treturn true;\n}\n</code></pre>\n",
+
 		"``` c\n/* special & char < > \" escaping */\n```\n",
 		"<pre><code class=\"language-c\">/* special &amp; char &lt; &gt; &quot; escaping */\n</code></pre>\n",
 
@@ -1644,36 +1747,6 @@ func TestTOC(t *testing.T) {
 	})
 }
 
-func TestOmitContents(t *testing.T) {
-	var tests = []string{
-		"# Title\n\n##Subtitle\n\n#Title2",
-		`<nav>
-
-<ul>
-<li><a href="#toc_0">Title</a>
-<ul>
-<li><a href="#toc_1">Subtitle</a></li>
-</ul></li>
-
-<li><a href="#toc_2">Title2</a></li>
-</ul>
-
-</nav>
-`,
-
-		// Make sure OmitContents omits even with no TOC
-		"#\n\nfoo",
-		"",
-	}
-	doTestsParam(t, tests, TestParams{
-		HTMLFlags: UseXHTML | TOC | OmitContents,
-	})
-	// Now run again: make sure OmitContents implies TOC
-	doTestsParam(t, tests, TestParams{
-		HTMLFlags: UseXHTML | OmitContents,
-	})
-}
-
 func TestCompletePage(t *testing.T) {
 	var tests = []string{
 		"*foo*",
@@ -1697,11 +1770,11 @@ func TestCompletePage(t *testing.T) {
 
 func TestIsFenceLine(t *testing.T) {
 	tests := []struct {
-		data            []byte
-		syntaxRequested bool
-		wantEnd         int
-		wantMarker      string
-		wantSyntax      string
+		data          []byte
+		infoRequested bool
+		wantEnd       int
+		wantMarker    string
+		wantInfo      string
 	}{
 		{
 			data:       []byte("```"),
@@ -1714,45 +1787,59 @@ func TestIsFenceLine(t *testing.T) {
 			wantMarker: "```",
 		},
 		{
-			data:            []byte("```\nstuff here\n"),
-			syntaxRequested: true,
-			wantEnd:         4,
-			wantMarker:      "```",
+			data:          []byte("```\nstuff here\n"),
+			infoRequested: true,
+			wantEnd:       4,
+			wantMarker:    "```",
 		},
 		{
 			data:    []byte("stuff here\n```\n"),
 			wantEnd: 0,
 		},
 		{
-			data:            []byte("```"),
-			syntaxRequested: true,
-			wantEnd:         3,
-			wantMarker:      "```",
+			data:          []byte("```"),
+			infoRequested: true,
+			wantEnd:       3,
+			wantMarker:    "```",
 		},
 		{
-			data:            []byte("``` go"),
-			syntaxRequested: true,
-			wantEnd:         6,
-			wantMarker:      "```",
-			wantSyntax:      "go",
+			data:          []byte("``` go"),
+			infoRequested: true,
+			wantEnd:       6,
+			wantMarker:    "```",
+			wantInfo:      "go",
+		},
+		{
+			data:          []byte("``` go foo bar"),
+			infoRequested: true,
+			wantEnd:       14,
+			wantMarker:    "```",
+			wantInfo:      "go foo bar",
+		},
+		{
+			data:          []byte("``` go foo bar  "),
+			infoRequested: true,
+			wantEnd:       16,
+			wantMarker:    "```",
+			wantInfo:      "go foo bar",
 		},
 	}
 
 	for _, test := range tests {
-		var syntax *string
-		if test.syntaxRequested {
-			syntax = new(string)
+		var info *string
+		if test.infoRequested {
+			info = new(string)
 		}
-		end, marker := isFenceLine(test.data, syntax, "```")
+		end, marker := isFenceLine(test.data, info, "```")
 		if got, want := end, test.wantEnd; got != want {
 			t.Errorf("got end %v, want %v", got, want)
 		}
 		if got, want := marker, test.wantMarker; got != want {
 			t.Errorf("got marker %q, want %q", got, want)
 		}
-		if test.syntaxRequested {
-			if got, want := *syntax, test.wantSyntax; got != want {
-				t.Errorf("got syntax %q, want %q", got, want)
+		if test.infoRequested {
+			if got, want := *info, test.wantInfo; got != want {
+				t.Errorf("got info string %q, want %q", got, want)
 			}
 		}
 	}
